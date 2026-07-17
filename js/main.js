@@ -180,18 +180,28 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
         });
 
         // 6. Botón Guardar
-        document.getElementById('btnGuardar')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            const data = window.obtenerDatosFormulario();
-            let nombre = (data.proyecto || 'proyecto').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/gi, '_');
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${nombre.replace(/_+/g, '_')}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        });
+    document.getElementById('btnGuardar').addEventListener('click', async () => {
+    // 1. Recolectar datos del formulario
+    // Asegúrate de que esta función devuelva el objeto con la información
+    const datos = obtenerDatosDelFormulario(); 
+    
+    // 2. Generar nombre de archivo único
+    const nombreArchivo = `levantamiento_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+
+    // 3. Subir a GitHub
+    try {
+        // Mostramos un mensaje de espera (opcional, puedes agregar un spinner)
+        alert("Guardando en la nube, por favor espera...");
+        
+        await guardarLevantamientoEnGitHub(nombreArchivo, datos);
+        
+        // Confirmación final
+        alert("¡Éxito! El levantamiento se ha guardado en tu repositorio.");
+    } catch (error) {
+        console.error("Error al guardar en GitHub:", error);
+        alert("Hubo un error al guardar en GitHub. Revisa la consola.");
+    }
+});
 
         // 7. Calculadora HDD
         document.getElementById('btnCalcularHDD')?.addEventListener('click', () => { document.getElementById('calculadoraPanel').style.display = document.getElementById('calculadoraPanel').style.display === 'none' ? 'block' : 'none'; });
