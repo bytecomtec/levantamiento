@@ -1,14 +1,12 @@
 {
   "name": "Bytecomtec Levantamiento",
   "short_name": "Bytecomtec",
-  "description": "Sistema de levantamiento de proyectos",
-  "start_url": "./",
+  "start_url": "/levantamiento/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#0056b3",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2942/2942813.png",
+      "src": "https://bytecomtec.github.io/Portal_de_Recursos/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
