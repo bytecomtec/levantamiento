@@ -157,6 +157,50 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
             return esValido;
         };
 
+        window.llenarFormularioConDatos = function(data) {
+    try {
+        // 1. Carga de campos básicos y de visita
+        ['cliente', 'proyecto', 'contacto', 'cargo', 'direccion', 'fechaVisita', 'horaVisita', 'contactoDatos'].forEach(id => { 
+            const el = document.getElementById(id); 
+            if (el) el.value = data[id] || ''; 
+        });
+
+        // 2. Carga específica para el select de ingeniero
+        if (data.ingeniero) {
+            const selIng = document.getElementById('ingeniero');
+            if (selIng) {
+                Array.from(selIng.options).forEach(opt => {
+                    if (opt.text === data.ingeniero) selIng.value = opt.value;
+                });
+            }
+        }
+
+        // 3. Lógica existente para secciones
+        Object.entries(data.secciones).forEach(([idBase, val]) => {
+            const fila = document.querySelector(`.row-item[data-item="${idBase.trim()}"]`);
+            if (fila) {
+                const check = fila.querySelector('input[type="checkbox"]');
+                if (check) { check.checked = true; check.dispatchEvent(new Event('change')); }
+                if (fila.querySelector('.qty-input')) fila.querySelector('.qty-input').value = val.cantidad || '';
+                if (fila.querySelector('select')) fila.querySelector('select').value = val.especificacion || 'N/A';
+                if (fila.querySelector('input[type="text"][placeholder*="Notas"]')) 
+                    fila.querySelector('input[type="text"][placeholder*="Notas"]').value = val.notas || '';
+            }
+        });
+
+        // 4. Lógica para entregables
+        if (data.entregables && Array.isArray(data.entregables)) {
+            document.querySelectorAll('.checkbox-grid input[type="checkbox"]').forEach(cb => { 
+                cb.checked = data.entregables.includes(cb.parentElement.innerText.trim()); 
+            });
+        }
+        alert("Proyecto cargado correctamente.");
+    } catch (err) {
+        console.error(err);
+        alert("Error al procesar los datos.");
+    }
+};
+
         // 4. Obtención de Datos
         window.obtenerDatosFormulario = function() {
             const datos = { secciones: {}, cliente: document.getElementById('cliente')?.value || 'N/A', 
@@ -245,51 +289,26 @@ document.getElementById('inputCargaRespaldo')?.addEventListener('change', (e) =>
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (event) => {
-        try {
-            const data = JSON.parse(event.target.result);
-            
-            // 1. Carga de campos básicos y de visita
-            ['cliente', 'proyecto', 'contacto', 'cargo', 'direccion', 'fechaVisita', 'horaVisita', 'contactoDatos'].forEach(id => { 
-                const el = document.getElementById(id); 
-                if (el) el.value = data[id] || ''; 
-            });
-
-            // 2. Carga específica para el select de ingeniero
-            if (data.ingeniero) {
-                const selIng = document.getElementById('ingeniero');
-                if (selIng) {
-                    // Busca la opción que contenga el nombre guardado para seleccionarla
-                    Array.from(selIng.options).forEach(opt => {
-                        if (opt.text === data.ingeniero) selIng.value = opt.value;
-                    });
-                }
-            }
-
-            // 3. Lógica existente para secciones (sin cambios)
-            Object.entries(data.secciones).forEach(([idBase, val]) => {
-                const fila = document.querySelector(`.row-item[data-item="${idBase.trim()}"]`);
-                if (fila) {
-                    const check = fila.querySelector('input[type="checkbox"]');
-                    if (check) { check.checked = true; check.dispatchEvent(new Event('change')); }
-                    if (fila.querySelector('.qty-input')) fila.querySelector('.qty-input').value = val.cantidad || '';
-                    if (fila.querySelector('select')) fila.querySelector('select').value = val.especificacion || 'N/A';
-                    if (fila.querySelector('input[type="text"][placeholder*="Notas"]')) fila.querySelector('input[type="text"][placeholder*="Notas"]').value = val.notas || '';
-                }
-            });
-
-            // 4. Lógica existente para entregables (sin cambios)
-            if (data.entregables && Array.isArray(data.entregables)) {
-                document.querySelectorAll('.checkbox-grid input[type="checkbox"]').forEach(cb => { cb.checked = data.entregables.includes(cb.parentElement.innerText.trim()); });
-            }
-            
-            alert("Proyecto cargado correctamente.");
-        } catch (err) { 
-            console.error(err);
-            alert("Error al procesar el archivo."); 
-        }
+        const data = JSON.parse(event.target.result);
+        window.llenarFormularioConDatos(data);
     };
     reader.readAsText(file);
 });
+
+        async function cargarDesdeGitHub(urlArchivo) {
+    const GITHUB_TOKEN = await obtenerToken();
+    const response = await fetch(urlArchivo, {
+        headers: { 
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3.raw' // Esto trae el JSON directo
+        }
+    });
+    
+    if (!response.ok) throw new Error("No se pudo descargar el archivo de GitHub");
+    
+    const data = await response.json();
+    window.llenarFormularioConDatos(data);
+}
 
 // 9. Botón Imprimir
 document.getElementById('btnImprimir')?.addEventListener('click', (e) => {
