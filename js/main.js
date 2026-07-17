@@ -183,7 +183,7 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
     document.getElementById('btnGuardar').addEventListener('click', async () => {
     // 1. Recolectar datos del formulario
     // Asegúrate de que esta función devuelva el objeto con la información
-    const datos = obtenerDatosDelFormulario(); 
+    const datos = obtenerDatosFormulario(); 
     
     // 2. Generar nombre de archivo único
     const nombreArchivo = `levantamiento_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
