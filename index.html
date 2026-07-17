@@ -23,15 +23,25 @@
     </div>
 
     <header class="main-header no-print">
-                <div class="brand-container">
-                    <h1>BYTECOMTEC</h1>
-                    <p>Ingeniería y Seguridad Digital — Ficha de Levantamiento Técnico</p>
-                </div>
+    <div class="brand-container">
+            <h1>BYTECOMTEC</h1>
+            <p>Ingeniería y Seguridad Digital — Ficha de Levantamiento Técnico</p>
+    </div>
 
-                <div class="restore-container">
-                    <label for="inputCargaRespaldo" class="btn-restore">Seleccionar archivo .json</label>
-                    <input type="file" id="inputCargaRespaldo" accept=".json" style="display: none;">
-                </div>
+<!--    <div class="restore-container">
+            <label for="inputCargaRespaldo" class="btn-restore">Seleccionar archivo .json</label>
+            <input type="file" id="inputCargaRespaldo" accept=".json" style="display: none;">
+    </div> -->
+        
+    <div class="restore-container">
+        <!-- Tu botón original para cargar local -->
+        <label for="inputCargaRespaldo" class="btn-restore">Seleccionar archivo .json (Local)</label>
+        <input type="file" id="inputCargaRespaldo" accept=".json" style="display: none;">
+    
+        <!-- Nuevo botón para cargar desde la nube -->
+        <button id="btnCargarNube" class="btn-restore" style="background-color: #2ea44f; color: white; cursor: pointer;">Cargar de GitHub (Nube)</button>
+    </div>
+        
     </header>
 
 <section class="card">
