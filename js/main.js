@@ -10,7 +10,7 @@ if (!window.hasLoadedMain) {
     }
 
     // --- Funciones Globales ---
-window.ejecutarImpresionClean = function() {
+    window.ejecutarImpresionClean = function() {
     if (!window.validarFormulario()) return;
 
     // Marcamos TODAS las filas que tienen algún valor para que el CSS las muestre
@@ -32,6 +32,32 @@ window.ejecutarImpresionClean = function() {
     window.print();
 };
 
+async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/datos/${nombreArchivo}`;
+    
+    // Convertimos el JSON a texto y luego a Base64
+    const contenidoBase64 = btoa(JSON.stringify(datosJson, null, 2));
+
+    const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            message: `Nuevo levantamiento: ${nombreArchivo}`,
+            content: contenidoBase64
+        })
+    });
+
+    if (response.ok) {
+        alert("Levantamiento guardado en la nube con éxito.");
+    } else {
+        console.error("Error al guardar:", await response.json());
+        alert("Hubo un error al guardar en GitHub.");
+    }
+}
+    
     window.actualizarEstadoImpresion = function() {
         document.querySelectorAll('.row-item').forEach(row => {
             const checkbox = row.querySelector('input[type="checkbox"]');
