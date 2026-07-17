@@ -203,16 +203,15 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
         });
 
         // 6. Botón Guardar
-// 6. Botón Guardar
-document.getElementById('btnGuardar').addEventListener('click', async () => {
-    // 1. Recolectar datos del formulario
-    const datos = obtenerDatosFormulario(); 
+        document.getElementById('btnGuardar').addEventListener('click', async () => {
+        // 1. Recolectar datos del formulario
+        const datos = obtenerDatosFormulario(); 
     
-    // 2. Generar nombre de archivo basado en el proyecto
-    // Obtenemos el nombre del proyecto y lo limpiamos (quitamos espacios y caracteres raros)
-    const nombreProyecto = (datos.proyecto || 'levantamiento').trim().replace(/[^a-z0-9]/gi, '_');
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const nombreArchivo = `${nombreProyecto}_${timestamp}.json`;
+        // 2. Generar nombre de archivo basado en el proyecto
+        // Obtenemos el nombre del proyecto y lo limpiamos (quitamos espacios y caracteres raros)
+        const nombreProyecto = (datos.proyecto || 'levantamiento').trim().replace(/[^a-z0-9]/gi, '_');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const nombreArchivo = `${nombreProyecto}_${timestamp}.json`;
 
     // 3. Subir a GitHub
     try {
