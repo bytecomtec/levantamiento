@@ -388,34 +388,51 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
 };    
 
 // Función para listar y cargar desde GitHub
-async function cargarDesdeGitHub() {
+document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
     try {
-        // 1. Obtener lista de archivos
         const GITHUB_TOKEN = await obtenerToken();
+        if (!GITHUB_TOKEN) throw new Error("Token no configurado.");
+
+        // 1. Obtener lista de archivos
         const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos`;
         const response = await fetch(url, {
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+            headers: { 
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Accept': 'application/json' 
+            }
         });
+        
+        if (!response.ok) throw new Error("No pude acceder a la carpeta 'datos'");
+        
         const archivos = await response.json();
+        const nombres = archivos.map(f => f.name);
+        const seleccion = prompt("Elige un archivo para cargar:\n\n" + nombres.join('\n'));
         
-        // 2. Crear una lista simple para que elijas cuál cargar
-        const nombreArchivo = prompt("Escribe el nombre exacto del archivo a cargar (ej: Proyecto_2026-07-17.json):", archivos[archivos.length-1].name);
-        
-        if (!nombreArchivo) return;
+        if (!seleccion) return;
 
-        // 3. Descargar el contenido
-        const fileUrl = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos/${nombreArchivo}`;
+        // 2. Descargar contenido del archivo seleccionado
+        const fileUrl = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos/${seleccion}`;
         const resFile = await fetch(fileUrl, {
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3.raw' }
+            headers: { 
+                'Authorization': `token ${GITHUB_TOKEN}`, 
+                'Accept': 'application/vnd.github.v3.raw' 
+            }
         });
         
-        const data = await resFile.json();
-        window.llenarFormularioConDatos(data); // Usamos la función que ya creamos
+        if (!resFile.ok) throw new Error("No pude descargar el archivo seleccionado");
+
+        // 3. Procesar respuesta de forma segura
+        const textoArchivo = await resFile.text();
+        const data = JSON.parse(textoArchivo);
+        
+        // 4. Llenar formulario usando la función puente que definimos antes
+        window.llenarFormularioConDatos(data);
         
     } catch (err) {
-        alert("No se pudo conectar a GitHub: " + err.message);
+        console.error("Detalle del error:", err);
+        alert("No se pudo cargar desde la nube: " + err.message);
     }
-}
+});
 
 // 9. Botón Imprimir
 document.getElementById('btnImprimir')?.addEventListener('click', (e) => {
