@@ -1,0 +1,333 @@
+/* --- Estilos Globales --- */
+.seccion-imprimible, .card, .section-container, .box, section {
+    display: block !important;
+    border: 2px solid black !important; /* Estilo consistente */
+    padding: 15px !important;
+    margin-bottom: 20px !important;
+    background-color: #ffffff !important;
+    overflow: hidden !important;
+    break-inside: avoid !important;
+}
+
+.container { 
+    width: 100%;           /* Ocupa casi todo el ancho en móviles/tablets */
+    max-width: 950px;    /* Limita el ancho en monitores grandes */
+    margin: auto;         /* Centra el formulario */
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* --- Encabezado --- */
+.main-header { background-color: #003366; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; margin-bottom: 20px; }
+.header-print { display: none; }
+
+/* --- Datos del Sitio --- */
+.site-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+.field-group { display: flex; flex-direction: column; width: 100%; }
+.field-group label { font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
+.field-group input, .field-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+
+/* Campo en estado activo (cuando el usuario interactúa) */
+.qty-input:focus, select:focus, input[type="text"]:focus {
+    border: 2px solid #0056b3;
+    background-color: #eef4fa;
+    outline: none;
+}
+
+/* Fila activa: cambia el fondo de la fila cuando se interactúa con ella */
+.row-item:has(input:focus), .row-item:has(select:focus) {
+    background-color: #f8fbff;
+    border-radius: 4px;
+}
+
+/* Clase de error para validación */
+.input-error {
+    border: 1.5px solid #dc3545 !important;
+    background-color: #fff8f8;
+}
+
+/* Label de error */
+.error-label {
+    color: #dc3545;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+/* Solo afecta a los row-item que están dentro de checkbox-grid */
+.checkbox-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.checkbox-grid .row-item {
+    display: flex !important; /* Alinea checkbox y texto */
+    align-items: center;
+    width: auto !important;   /* Evita que ocupen toda la fila */
+    padding: 5px 10px;
+    border: 1px solid #eee;   /* Opcional: añade un borde suave */
+    border-radius: 4px;
+}
+
+/* Forzamos la visibilidad de los seleccionados en la Sección 8 */
+    .checkbox-grid .row-item.is-printed { 
+        display: inline-flex !important; 
+        margin-right: 15px;
+        border: none !important; /* Quitamos el borde al imprimir */
+    }
+
+/* --- DISEÑO DE FILA (ESCRITORIO) --- */
+.row-item { display: grid; grid-template-columns: 25px 150px 60px 1fr 1fr; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
+.row-item input, .row-item select { width: 100%; padding: 6px; box-sizing: border-box; }
+
+/* --- RESPONSIVE: AJUSTE PARA MÓVIL --- */
+@media (max-width: 600px) {
+    .row-item { display: grid; grid-template-columns: 25px 1fr 60px; grid-template-rows: auto auto; gap: 5px; }
+    .row-item select, .row-item input:not([type="checkbox"]):not(.qty-input) { grid-column: 1 / span 3; }
+    .site-data-grid { grid-template-columns: 1fr; }
+}
+
+.row-item input, .row-item select {
+    width: 100%;
+    min-width: 0;
+    padding: 6px;
+    box-sizing: border-box;
+}
+
+/* --- FILAS SIMPLES (Sección 7) --- */
+.row-item.simple {
+    grid-template-columns: 25px 200px 1fr;
+}
+
+/* --- RESPONSIVE: AJUSTE PARA MÓVIL --- */
+@media (max-width: 600px) {
+    /* 1. Reset para filas normales en móvil */
+    .row-item {
+        display: grid;
+        grid-template-columns: 25px 1fr 60px;
+        grid-template-rows: auto auto;
+        gap: 5px;
+    }
+    .row-item select, 
+    .row-item input:not([type="checkbox"]):not(.qty-input) {
+        grid-column: 1 / span 3;
+    }
+
+    /* 2. Reset para filas simples en móvil */
+    .row-item.simple {
+        display: grid;
+        grid-template-columns: 25px 1fr;
+    }
+    .row-item.simple label { grid-column: 2; }
+    .row-item.simple select { grid-column: 1 / span 2; }
+}
+
+.header-print {
+    display: none; 
+}
+
+/* --- IMPRESIÓN --- */
+@media print {
+    /* 1. Ocultar elementos de UI y controles de impresión */
+    button, .nav-buttons, .footer-actions, .btn-restore, .btn-print,
+    input[type="checkbox"], 
+    .checkbox-grid input[type="checkbox"] { 
+        display: none !important; 
+    }
+
+    /* Mantenemos el header visible, pero sin el fondo azul */
+    .main-header.no-print {
+        display: none !important;
+    }
+
+    .header-print { 
+        display: block !important; 
+        text-align: center !important; 
+        margin-bottom: 20px !important; 
+    }
+
+
+    /* 3. Aseguramos que los elementos dentro sean visibles */
+    .header-print img {
+        display: block !important;
+        margin: 0 auto 10px auto !important;
+        max-width: 200px !important;
+        visibility: visible !important;
+    }
+
+    .header-print .logo-header { 
+        width: 100px !important; 
+        margin: 0 auto 5px auto !important; 
+    }
+
+    .site-data-grid, .field-group { 
+        display: grid !important; /* Recupera el formato de tabla */
+        visibility: visible !important; 
+    }
+
+    input, select { 
+        border: none !important; 
+        background: transparent !important; 
+        appearance: none !important; 
+    }
+
+    .btn-restore { 
+        display: none !important; 
+    }
+
+    /* Oculta el main-header si no quieres que salga el fondo azul */
+    .main-header {
+        display: none !important;
+    }
+
+    .title-print {
+        text-align: center !important;
+        margin-top: 10px !important;
+    }
+
+    .title-print h1 { font-size: 18px !important; margin: 0 !important; }
+    
+    .title-print p {
+        margin: 0 !important;
+        line-height: 1.2 !important;
+    }
+
+        /* Forzar que el logo sea visible y no se oculte por error */
+    .site-data-grid { 
+        display: grid !important; 
+        grid-template-columns: 1fr 1fr !important; 
+        gap: 5px 15px !important; /* El primer valor (5px) controla el espacio vertical entre filas */
+        margin-bottom: 10px !important; /* Reduce el espacio debajo de esta sección */
+    }
+
+    /* 2. Conversión radical de selectores y campos a texto plano */
+        select, input, .qty-input {
+        border: none !important;
+        background: transparent !important;
+        -webkit-appearance: none !important;
+        pointer-events: none !important;
+        color: #000 !important;
+        font-size: 13px !important;
+    }
+
+    /* 3. CONVERSIÓN DE CAMPOS A TEXTO PLANO (Crucial para eliminar cajas/flechas) */
+    .seccion-imprimible {
+        display: block !important;
+        border: 1px solid #000 !important;
+        padding: 15px !important;
+        margin-bottom: 20px !important;
+        background-color: #ffffff !important;
+        /* Evita que el contenedor colapse en Firefox */
+        overflow: hidden !important;
+        page-break-inside: avoid;
+    }
+
+    .field-group label { 
+        margin: 0 !important; 
+        line-height: 1 !important; /* Reduce la altura de línea de la etiqueta */
+    }
+
+        /* 4. Estructura de fila forzada a una línea */
+    .row-item { 
+        display: grid !important; 
+        grid-template-columns: 130px 60px 200px 1fr !important;
+        gap: 10px !important; 
+        align-items: center !important; 
+        border-bottom: 1px solid #eee !important;
+        padding: 2px 0 !important;
+        min-height: 20px !important; 
+    }
+
+    .row-item label { 
+        font-weight: bold !important; 
+        font-size: 11px !important; 
+        white-space: normal !important; 
+        margin-right: 10px !important;
+    }
+
+    .field-group input, .field-group select { 
+        display: block !important;
+        border: 1px solid #ccc !important; /* O usa 'none' si prefieres sin borde */
+        background: white !important; 
+        color: #000 !important;
+        opacity: 1 !important; 
+        pointer-events: auto !important;
+    }
+
+    .field-group input, 
+        .field-group span { 
+        margin: 0 !important; 
+        line-height: 1 !important; 
+    }
+
+    /* 5. Asegurar que las etiquetas no se corten */
+    .row-item:not(.is-printed) { 
+        display: none !important; 
+    }
+
+    .row-item.simple {
+        grid-template-columns: 180px 1fr !important; 
+        padding-left: 20px !important; /* Mueve toda la fila hacia la derecha */
+    }
+
+    .row-item input, 
+    .row-item select {
+        padding-left: 5px !important; /* Ajusta este valor (15px) según tu preferencia */
+    }
+
+    .section-title, .seccion-header { 
+        font-size: 16px !important; 
+        line-height: 1.2 !important;
+        margin-bottom: 10px !important;
+    }
+
+    .row-item label { 
+        font-weight: bold !important; 
+        font-size: 11px !important; /* Ajusta este valor (ej. 10px, 11px, 12px) */
+        white-space: normal !important; 
+        margin-right: 10px !important;
+    }
+
+    /* --- 3. Corrección específica para Firefox --- */
+        @-moz-document url-prefix() {
+        @media print {
+        input[type="number"] { -moz-appearance: textfield !important; }
+        select { background-image: none !important; }
+        }
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        display: none !important;
+        -webkit-appearance: none !important;
+        content: "" !important;
+        width: 0 !important;
+        height: 0 !important;
+        visibility: hidden !important;
+    }
+
+    /* Forzar que el input no tenga espacio reservado para el ícono */
+    input[type="date"], input[type="time"] {
+        padding-right: 0 !important;
+    }
+
+    /* 6. Márgenes de página limpios */
+    @page { margin: 15mm; }
+    body { margin: 0 !important; }
+}
+
+
+/* --- Tarjetas y Botones --- */
+.card { background: white; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; }
+.footer-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.footer-actions button { padding: 15px; border: none; border-radius: 4px; color: white; font-weight: bold; width: 100%; cursor: pointer; }
+.btn-whatsapp { background-color: #25d366; }
+.btn-backup { background-color: #4a5568; }
+.btn-print { background-color: #003366; }
+
+/* --- Estados --- */
+.qty-input:focus, select:focus, input[type="text"]:focus { border: 2px solid #0056b3; background-color: #eef4fa; outline: none; }
+.row-item:has(input:focus), .row-item:has(select:focus) { background-color: #f8fbff; }
+.input-error { border: 1.5px solid #dc3545 !important; background-color: #fff8f8; }
