@@ -41,7 +41,7 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
     const response = await fetch(url, {
         method: 'PUT',
         headers: {
-            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Authorization': `Bearer ${GITHUB_TOKEN}`,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
