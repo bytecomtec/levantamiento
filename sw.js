@@ -1,15 +1,11 @@
-// sw.js - Versión actualizada para evitar bloqueos
+// sw.js simplificado al máximo
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(clients.claim()); // Toma control de las páginas abiertas
+  // Eliminamos clients.claim() por ahora para evitar el error de InvalidStateError
+  console.log('Service Worker activado y limpio');
 });
 
-// ESTO ES LO QUE TE FALTA:
-// Al añadir este evento, le dices al navegador: 
-// "Para cualquier cosa que necesites, ve directo a la red (no bloquees)"
-self.addEventListener('fetch', (event) => {
-  event.respondWith(fetch(event.request));
-});
+// Sin evento fetch para asegurar que el navegador use la red directamente
