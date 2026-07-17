@@ -295,19 +295,34 @@ document.getElementById('inputCargaRespaldo')?.addEventListener('change', (e) =>
     reader.readAsText(file);
 });
 
-        async function cargarDesdeGitHub(urlArchivo) {
-    const GITHUB_TOKEN = await obtenerToken();
-    const response = await fetch(urlArchivo, {
-        headers: { 
-            'Authorization': `token ${GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3.raw' // Esto trae el JSON directo
-        }
-    });
-    
-    if (!response.ok) throw new Error("No se pudo descargar el archivo de GitHub");
-    
-    const data = await response.json();
-    window.llenarFormularioConDatos(data);
+// Función para listar y cargar desde GitHub
+async function cargarDesdeGitHub() {
+    try {
+        // 1. Obtener lista de archivos
+        const GITHUB_TOKEN = await obtenerToken();
+        const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos`;
+        const response = await fetch(url, {
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        });
+        const archivos = await response.json();
+        
+        // 2. Crear una lista simple para que elijas cuál cargar
+        const nombreArchivo = prompt("Escribe el nombre exacto del archivo a cargar (ej: Proyecto_2026-07-17.json):", archivos[archivos.length-1].name);
+        
+        if (!nombreArchivo) return;
+
+        // 3. Descargar el contenido
+        const fileUrl = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos/${nombreArchivo}`;
+        const resFile = await fetch(fileUrl, {
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3.raw' }
+        });
+        
+        const data = await resFile.json();
+        window.llenarFormularioConDatos(data); // Usamos la función que ya creamos
+        
+    } catch (err) {
+        alert("No se pudo conectar a GitHub: " + err.message);
+    }
 }
 
 // 9. Botón Imprimir
