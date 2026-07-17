@@ -720,12 +720,18 @@
   }
 </script>
 
-script>
-    // Esto intenta definir la variable. Si no existe, define una por defecto 
-    // para que el sitio no se rompa al estar publicado.
+<script>
+    // Definimos las variables necesarias para que el script no falle
     if (typeof GITHUB_TOKEN === 'undefined') {
         var GITHUB_TOKEN = ""; 
     }
+    if (typeof REPO_OWNER === 'undefined') {
+        var REPO_OWNER = "bytecomtec"; // Tu usuario de GitHub
+    }
+    if (typeof REPO_NAME === 'undefined') {
+        var REPO_NAME = "levantamiento"; // El nombre de tu repo
+    }
+</script>
 </script>    <script src="js/config.js"></script>
     <script src="js/main.js"></script>
    
