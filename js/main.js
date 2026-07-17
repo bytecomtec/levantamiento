@@ -330,7 +330,53 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
         window.llenarFormularioConDatos(data);
     };
     reader.readAsText(file);
-});
+    });
+
+    // Función puente para cargar desde cualquier fuente (Local o GitHub)
+    window.llenarFormularioConDatos = function(data) {
+    try {
+        // 1. Carga de campos básicos y de visita
+        ['cliente', 'proyecto', 'contacto', 'cargo', 'direccion', 'fechaVisita', 'horaVisita', 'contactoDatos'].forEach(id => { 
+            const el = document.getElementById(id); 
+            if (el) el.value = data[id] || ''; 
+        });
+
+        // 2. Carga específica para el select de ingeniero
+        if (data.ingeniero) {
+            const selIng = document.getElementById('ingeniero');
+            if (selIng) {
+                Array.from(selIng.options).forEach(opt => {
+                    if (opt.text === data.ingeniero) selIng.value = opt.value;
+                });
+            }
+        }
+
+        // 3. Lógica existente para secciones
+        Object.entries(data.secciones).forEach(([idBase, val]) => {
+            const fila = document.querySelector(`.row-item[data-item="${idBase.trim()}"]`);
+            if (fila) {
+                const check = fila.querySelector('input[type="checkbox"]');
+                if (check) { check.checked = true; check.dispatchEvent(new Event('change')); }
+                if (fila.querySelector('.qty-input')) fila.querySelector('.qty-input').value = val.cantidad || '';
+                if (fila.querySelector('select')) fila.querySelector('select').value = val.especificacion || 'N/A';
+                if (fila.querySelector('input[type="text"][placeholder*="Notas"]')) 
+                    fila.querySelector('input[type="text"][placeholder*="Notas"]').value = val.notas || '';
+            }
+        });
+
+        // 4. Lógica existente para entregables
+        if (data.entregables && Array.isArray(data.entregables)) {
+            document.querySelectorAll('.checkbox-grid input[type="checkbox"]').forEach(cb => { 
+                cb.checked = data.entregables.includes(cb.parentElement.innerText.trim()); 
+            });
+        }
+        
+        alert("Proyecto cargado correctamente.");
+    } catch (err) {
+        console.error("Error al llenar el formulario:", err);
+        alert("Error al procesar los datos: " + err.message);
+    }
+};    
 
 // Función para listar y cargar desde GitHub
 async function cargarDesdeGitHub() {
