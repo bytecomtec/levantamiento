@@ -283,8 +283,45 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
             if (document.getElementById('notes_hdd')) document.getElementById('notes_hdd').value = `Calculado: ${dias} días`;
         });
 
+    // 2. Vía NUBE (La nueva lógica)
+    document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
+    try {
+        const GITHUB_TOKEN = await obtenerToken();
+        const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos`;
+        
+        const response = await fetch(url, {
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        });
+        
+        if (!response.ok) throw new Error("No pude acceder a la carpeta 'datos'");
+        
+        const archivos = await response.json();
+        
+        // Creamos una selección rápida
+        const nombres = archivos.map(f => f.name);
+        const seleccion = prompt("Elige un archivo para cargar:\n\n" + nombres.join('\n'));
+        
+        if (!seleccion) return;
+
+        const fileUrl = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos/${seleccion}`;
+        const resFile = await fetch(fileUrl, {
+            headers: { 
+                'Authorization': `token ${GITHUB_TOKEN}`, 
+                'Accept': 'application/vnd.github.v3.raw' 
+            }
+        });
+        
+        const data = await resFile.json();
+        window.llenarFormularioConDatos(data);
+        
+    } catch (err) {
+        console.error(err);
+        alert("No se pudo cargar desde la nube: " + err.message);
+    }
+});
+        
         // 8. Carga JSON
-document.getElementById('inputCargaRespaldo')?.addEventListener('change', (e) => {
+    document.getElementById('inputCargaRespaldo')?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
