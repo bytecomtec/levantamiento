@@ -32,30 +32,25 @@ if (!window.hasLoadedMain) {
     window.print();
 };
 
-async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
-    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/datos/${nombreArchivo}`;
+async function obtenerToken() {
+    // 1. Busca si ya hay un token guardado en este dispositivo
+    let token = localStorage.getItem('GITHUB_TOKEN_BYTECOMTEC');
     
-    // Convertimos el JSON a texto y luego a Base64
-    const contenidoBase64 = btoa(JSON.stringify(datosJson, null, 2));
-
-    const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${GITHUB_TOKEN}`, // Cambiado a Bearer
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            message: `Nuevo levantamiento: ${nombreArchivo}`,
-            content: contenidoBase64
-        })
-    });
-
-    if (response.ok) {
-        alert("Levantamiento guardado en la nube con éxito.");
-    } else {
-        console.error("Error al guardar:", await response.json());
-        alert("Hubo un error al guardar en GitHub.");
+    // 2. Si no hay, pídelo al usuario y guárdalo
+    if (!token) {
+        token = prompt("Ingresa tu GitHub Token (se guardará solo en este dispositivo):");
+        if (token) {
+            localStorage.setItem('GITHUB_TOKEN_BYTECOMTEC', token);
+        }
     }
+    return token;
+}
+
+async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
+    const GITHUB_TOKEN = await obtenerToken();
+    if (!GITHUB_TOKEN) return; // Si el usuario cancela, no hacemos nada
+
+    // ... aquí sigue tu código de fetch usando la variable GITHUB_TOKEN
 }
     
     window.actualizarEstadoImpresion = function() {
