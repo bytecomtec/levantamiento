@@ -48,9 +48,37 @@ async function obtenerToken() {
 
 async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
     const GITHUB_TOKEN = await obtenerToken();
-    if (!GITHUB_TOKEN) return; // Si el usuario cancela, no hacemos nada
+    if (!GITHUB_TOKEN) throw new Error("Token no disponible");
 
-    // ... aquí sigue tu código de fetch usando la variable GITHUB_TOKEN
+    const repoOwner = "bytecomtec"; // Asegúrate que sea tu usuario correcto
+    const repoName = "levantamiento"; // Nombre de tu repositorio
+    const path = `datos/${nombreArchivo}`;
+    const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
+
+    // Convertir los datos a Base64 (requerido por la API de GitHub)
+    const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(datosJson, null, 2))));
+
+    const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message: `Guardando levantamiento: ${nombreArchivo}`,
+            content: contentBase64,
+            branch: "main" // Verifica que tu rama principal se llame 'main'
+        })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        console.error("Error respuesta GitHub:", result);
+        throw new Error(result.message || "Error al subir a GitHub");
+    }
+
+    return result;
 }
     
     window.actualizarEstadoImpresion = function() {
