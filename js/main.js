@@ -1,3 +1,12 @@
+// FORZAR ELIMINACIÓN DE SERVICE WORKER
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (let registration of registrations) {
+            registration.unregister().then(() => console.log("Service Worker eliminado"));
+        }
+    });
+}
+
 if (!window.hasLoadedMain) {
     window.hasLoadedMain = true;
 
