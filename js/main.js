@@ -203,26 +203,27 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
         });
 
         // 6. Botón Guardar
-    document.getElementById('btnGuardar').addEventListener('click', async () => {
+// 6. Botón Guardar
+document.getElementById('btnGuardar').addEventListener('click', async () => {
     // 1. Recolectar datos del formulario
-    // Asegúrate de que esta función devuelva el objeto con la información
     const datos = obtenerDatosFormulario(); 
     
-    // 2. Generar nombre de archivo único
-    const nombreArchivo = `levantamiento_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    // 2. Generar nombre de archivo basado en el proyecto
+    // Obtenemos el nombre del proyecto y lo limpiamos (quitamos espacios y caracteres raros)
+    const nombreProyecto = (datos.proyecto || 'levantamiento').trim().replace(/[^a-z0-9]/gi, '_');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const nombreArchivo = `${nombreProyecto}_${timestamp}.json`;
 
     // 3. Subir a GitHub
     try {
-        // Mostramos un mensaje de espera (opcional, puedes agregar un spinner)
         alert("Guardando en la nube, por favor espera...");
         
         await guardarLevantamientoEnGitHub(nombreArchivo, datos);
         
-        // Confirmación final
-        alert("¡Éxito! El levantamiento se ha guardado en tu repositorio.");
+        alert("¡Éxito! El levantamiento se ha guardado como: " + nombreArchivo);
     } catch (error) {
         console.error("Error al guardar en GitHub:", error);
-        alert("Hubo un error al guardar en GitHub. Revisa la consola.");
+        alert("Hubo un error al guardar en GitHub: " + error.message);
     }
 });
 
