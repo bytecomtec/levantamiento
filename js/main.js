@@ -221,29 +221,39 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
     const GITHUB_TOKEN = await obtenerToken();
     if (!GITHUB_TOKEN) throw new Error("Token no disponible");
 
+    // URL específica para el archivo en la carpeta /datos/
     const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos/${nombreArchivo}`;
     const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(datosJson, null, 2))));
 
-    // 1. Intentamos obtener el SHA actual
+    // Paso A: Obtener el SHA actual antes de guardar
     let sha = null;
-    const responseCheck = await fetch(url, {
-        headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
-    });
-
-    if (responseCheck.ok) {
-        const data = await responseCheck.json();
-        sha = data.sha;
+    try {
+        const responseCheck = await fetch(url, {
+            headers: { 
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
+        
+        if (responseCheck.ok) {
+            const data = await responseCheck.json();
+            sha = data.sha; // Aquí obtenemos la huella digital correcta
+        }
+    } catch (e) {
+        console.warn("No se pudo obtener el SHA, se intentará crear.");
     }
 
-    // 2. Preparamos el cuerpo
+    // Paso B: Preparar la petición
     const body = {
-        message: `Guardando ${nombreArchivo}`,
+        message: `Actualizando: ${nombreArchivo}`,
         content: contentBase64,
         branch: "main"
     };
-    if (sha) body.sha = sha; // Solo añadimos el SHA si el archivo ya existe
+    
+    // Solo añadimos el SHA si realmente existe
+    if (sha) body.sha = sha;
 
-    // 3. Enviamos
+    // Paso C: Ejecutar la actualización
     const response = await fetch(url, {
         method: 'PUT',
         headers: { 
@@ -255,7 +265,7 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
 
     const result = await response.json();
     if (!response.ok) {
-        throw new Error(result.message || "Error al subir");
+        throw new Error(result.message || "Error al subir a GitHub");
     }
     return result;
 }
