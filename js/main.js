@@ -7,8 +7,7 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Bloque principal
-if (!window.hasLoadedMain) {
+    if (!window.hasLoadedMain) {
     window.hasLoadedMain = true;
 
     // --- 0. Configuración Inicial ---
@@ -21,77 +20,85 @@ if (!window.hasLoadedMain) {
 
     // --- Funciones Globales ---
     window.ejecutarImpresionClean = function() {
-        if (!window.validarFormulario()) return;
-        document.querySelectorAll('.row-item').forEach(fila => {
-            const checkbox = fila.querySelector('input[type="checkbox"]');
-            const cantidad = fila.querySelector('.qty-input');
-            const select = fila.querySelector('select');
-            
-            if ((checkbox && checkbox.checked) || 
-                (cantidad && cantidad.value.trim() !== "") || 
-                (select && select.value !== "" && select.value !== "Seleccionar...")) {
-                fila.classList.add('is-printed');
+    if (!window.validarFormulario()) return;
+
+    // Marcamos TODAS las filas que tienen algún valor para que el CSS las muestre
+    document.querySelectorAll('.row-item').forEach(fila => {
+        const checkbox = fila.querySelector('input[type="checkbox"]');
+        const cantidad = fila.querySelector('.qty-input');
+        const select = fila.querySelector('select');
+        
+        // Marcamos si tiene un checkbox checkeado o tiene valor en cantidad/select
+        if ((checkbox && checkbox.checked) || 
+            (cantidad && cantidad.value.trim() !== "") || 
+            (select && select.value !== "" && select.value !== "Seleccionar...")) {
+            fila.classList.add('is-printed');
+        } else {
+            fila.classList.remove('is-printed');
+        }
+    });
+
+    window.print();
+};
+
+async function obtenerToken() {
+    // 1. Busca si ya hay un token guardado en este dispositivo
+    let token = localStorage.getItem('GITHUB_TOKEN_BYTECOMTEC');
+    
+    // 2. Si no hay, pídelo al usuario y guárdalo
+    if (!token) {
+        token = prompt("Ingresa tu GitHub Token (se guardará solo en este dispositivo):");
+        if (token) {
+            localStorage.setItem('GITHUB_TOKEN_BYTECOMTEC', token);
+        }
+    }
+    return token;
+}
+
+async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
+    const GITHUB_TOKEN = await obtenerToken();
+    if (!GITHUB_TOKEN) throw new Error("Token no disponible");
+
+    const repoOwner = "bytecomtec"; // Asegúrate que sea tu usuario correcto
+    const repoName = "levantamiento"; // Nombre de tu repositorio
+    const path = `datos/${nombreArchivo}`;
+    const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${path}`;
+
+    // Convertir los datos a Base64 (requerido por la API de GitHub)
+    const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(datosJson, null, 2))));
+
+    const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message: `Guardando levantamiento: ${nombreArchivo}`,
+            content: contentBase64,
+            branch: "main" // Verifica que tu rama principal se llame 'main'
+        })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        console.error("Error respuesta GitHub:", result);
+        throw new Error(result.message || "Error al subir a GitHub");
+    }
+
+    return result;
+}
+    
+    window.actualizarEstadoImpresion = function() {
+        document.querySelectorAll('.row-item').forEach(row => {
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            if (checkbox && checkbox.checked) {
+                row.classList.add('is-printed');
             } else {
-                fila.classList.remove('is-printed');
+                row.classList.remove('is-printed');
             }
         });
-        window.print();
-    };
-
-    async function obtenerToken() {
-        let token = localStorage.getItem('GITHUB_TOKEN_BYTECOMTEC');
-        if (!token) {
-            token = prompt("Ingresa tu GitHub Token:");
-            if (token) localStorage.setItem('GITHUB_TOKEN_BYTECOMTEC', token);
-        }
-        return token;
-    }
-
-    async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
-        const GITHUB_TOKEN = await obtenerToken();
-        if (!GITHUB_TOKEN) throw new Error("Token no disponible");
-        
-        const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos/${nombreArchivo}`;
-        const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(datosJson, null, 2))));
-
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: `Guardando: ${nombreArchivo}`,
-                content: contentBase64,
-                branch: "main"
-            })
-        });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "Error al subir");
-        return result;
-    }
-
-    // Definición Única de la función puente
-    window.llenarFormularioConDatos = function(data) {
-        try {
-            ['cliente', 'proyecto', 'contacto', 'cargo', 'direccion', 'fechaVisita', 'horaVisita', 'contactoDatos'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = data[id] || '';
-            });
-            
-            Object.entries(data.secciones || {}).forEach(([idBase, val]) => {
-                const fila = document.querySelector(`.row-item[data-item="${idBase.trim()}"]`);
-                if (fila) {
-                    const check = fila.querySelector('input[type="checkbox"]');
-                    if (check) { check.checked = true; check.dispatchEvent(new Event('change')); }
-                    if (fila.querySelector('.qty-input')) fila.querySelector('.qty-input').value = val.cantidad || '';
-                    if (fila.querySelector('select')) fila.querySelector('select').value = val.especificacion || 'N/A';
-                    if (fila.querySelector('input[type="text"][placeholder*="Notas"]'))
-                        fila.querySelector('input[type="text"][placeholder*="Notas"]').value = val.notas || '';
-                }
-            });
-            alert("Proyecto cargado correctamente.");
-        } catch (err) {
-            console.error(err);
-            alert("Error al procesar los datos.");
-        }
     };
 
 document.addEventListener('DOMContentLoaded', () => {
