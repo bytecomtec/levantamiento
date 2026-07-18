@@ -1,0 +1,179 @@
+{
+  "cliente": "Chalchihuitlicue",
+  "proyecto": "",
+  "contacto": "",
+  "cargo": "",
+  "direccion": "",
+  "fechaVisita": "",
+  "horaVisita": "",
+  "contactoDatos": "",
+  "ingeniero": "Seleccionar...",
+  "secciones": {
+    "dispositivo": {
+      "cantidad": "1",
+      "especificacion": "NVR",
+      "notas": "Hikvision 32 canales"
+    },
+    "hdd": {
+      "cantidad": "1",
+      "especificacion": "1 TB",
+      "notas": "Western Digital"
+    },
+    "monitor": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "ext": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "gabinete": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "cam_domo": {
+      "cantidad": "12",
+      "especificacion": "2MP",
+      "notas": "ColorVu/Mic"
+    },
+    "cam_bullet": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "cam_ptz": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "cam_lpr": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "cam_analitica": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "switch": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "cable": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "transceptores": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "jacks_dc": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "conectores": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "fo_cable": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "fo_cajas": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "fo_conv": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "fo_pigtails": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "fo_sfp": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "mat_gewiss": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "mat_galv": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "mat_flex": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "mat_canaleta": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "mat_caja": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "mat_miscelaneos": {
+      "especificacion": ""
+    },
+    "pwr_fuente": {
+      "cantidad": "1",
+      "especificacion": "PS-12-DC-4C 5A Para 4 Cámaras",
+      "notas": "Epcom, No permite respaldo con batería"
+    },
+    "pwr_ups": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "pwr_bateria": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "pdu": {
+      "cantidad": "",
+      "especificacion": "",
+      "notas": ""
+    },
+    "Instalacion": {
+      "especificacion": "Cable tendido, sin canalizar."
+    },
+    "Vlans": {
+      "especificacion": "Sin configuración específica."
+    },
+    "Configuracion": {
+      "especificacion": "Configuración horario, alerta y cruce de línea"
+    },
+    "Acceso": {
+      "especificacion": "Sin configurar acceso remoto"
+    },
+    "Altura": {
+      "especificacion": "Riesgo de trabajo por altura >5m"
+    }
+  },
+  "entregables": [
+    "Planos"
+  ]
+}
