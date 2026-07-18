@@ -246,45 +246,48 @@ if (!window.hasLoadedMain) {
             if (document.getElementById('notes_hdd')) document.getElementById('notes_hdd').value = `Calculado: ${dias} días`;
         });
 
-// Cambia tu bloque de "Vía NUBE" por este para depurar:
-// Asegúrate de que este bloque esté dentro de tu DOMContentLoaded
-const btnNube = document.getElementById('btnCargarNube');
-
-if (btnNube) {
-    btnNube.addEventListener('click', async () => {
-        console.log("Botón Nube presionado correctamente."); // <-- Si esto no sale en la consola, el problema es el HTML o el DOM
+    //Vía NUBE (La nueva lógica)
+    document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
+    try {
+        const GITHUB_TOKEN = await obtenerToken();
+        const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos`;
         
-        try {
-            const GITHUB_TOKEN = await obtenerToken();
-            if (!GITHUB_TOKEN) {
-                console.warn("Token no encontrado.");
-                return;
+        const response = await fetch(url, {
+            method: 'GET', // Aseguramos que sea GET
+            mode: 'cors',  // Forzamos el modo CORS
+            headers: { 
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json' // Header específico de la API de GitHub
             }
-            
-            const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos`;
-            console.log("Llamando a:", url);
-            
-            const response = await fetch(url, { 
-                headers: { 'Authorization': `token ${GITHUB_TOKEN}` } 
-            });
-            
-            if (!response.ok) throw new Error("Respuesta del servidor: " + response.status);
-            
-            const archivos = await response.json();
-            const nombres = archivos.map(f => f.name);
-            const seleccion = prompt("Elige un archivo para cargar:\n\n" + nombres.join('\n'));
-            
-            if (seleccion) {
-                // ... tu lógica de carga de archivo ...
+        });
+        
+        if (!response.ok) throw new Error("Error de conexión: " + response.status);
+        
+        const archivos = await response.json();
+        const nombres = archivos.map(f => f.name);
+        const seleccion = prompt("Elige un archivo para cargar:\n\n" + nombres.join('\n'));
+        
+        if (!seleccion) return;
+
+        // Repetimos la lógica para traer el contenido del archivo
+        const fileUrl = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos/${seleccion}`;
+        const resFile = await fetch(fileUrl, {
+            method: 'GET',
+            mode: 'cors',
+            headers: { 
+                'Authorization': `token ${GITHUB_TOKEN}`, 
+                'Accept': 'application/vnd.github.v3.raw' 
             }
-        } catch (err) {
-            console.error("Error capturado:", err);
-            alert("Error: " + err.message);
-        }
-    });
-} else {
-    console.error("El elemento con ID 'btnCargarNube' no fue encontrado en el DOM.");
-}
+        });
+        
+        const data = await resFile.json();
+        window.llenarFormularioConDatos(data);
+        
+    } catch (err) {
+        console.error("Error detallado:", err);
+        alert("No se pudo cargar desde la nube: " + err.message);
+    }
+});
 
         // 8. Carga JSON
         document.getElementById('inputCargaRespaldo')?.addEventListener('change', (e) => {
