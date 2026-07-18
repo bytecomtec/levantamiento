@@ -221,6 +221,9 @@ if (!window.hasLoadedMain) {
  document.getElementById('btnGuardar')?.addEventListener('click', async () => {
     // 1. Obtener datos actuales del formulario
     const nuevoLevantamiento = {
+        const el = document.getElementById('TU_ID_AQUI');
+console.log("¿Elemento encontrado?:", el); // Si sale null, ahí está el problema
+const valor = el.value;
         id: Date.now().toString(), // Genera un ID único basado en el tiempo
         nombreCliente: document.getElementById('nombreCliente').value,
         nombreProyecto: document.getElementById('nombreProyecto').value,
