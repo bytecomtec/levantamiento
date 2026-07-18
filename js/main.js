@@ -218,22 +218,15 @@ if (!window.hasLoadedMain) {
         });
 
 document.getElementById('btnGuardar')?.addEventListener('click', async () => {
-    // 1. Obtener datos con seguridad
-    const elCliente = document.getElementById('nombreCliente');
-    const elProyecto = document.getElementById('nombreProyecto');
-    
-    // Verificación básica para evitar el error "null"
-    if (!elCliente || !elProyecto) {
-        alert("Error: No se encuentran los campos de nombre o proyecto en el formulario.");
-        return;
-    }
+    // Usamos tu función existente que ya extrae todo el formulario correctamente
+    const datosFormulario = window.obtenerDatosFormulario();
 
     const nuevoLevantamiento = {
         id: Date.now().toString(),
-        nombreCliente: elCliente.value,
-        nombreProyecto: elProyecto.value,
+        nombreCliente: datosFormulario.cliente, // Usa las llaves que ya definiste en tu función
+        nombreProyecto: datosFormulario.proyecto,
         fecha: new Date().toISOString().split('T')[0],
-        datos: window.obtenerDatosFormulario() // Usamos tu función que ya tienes creada
+        datos: datosFormulario
     };
 
     try {
@@ -250,7 +243,7 @@ document.getElementById('btnGuardar')?.addEventListener('click', async () => {
         a.download = 'proyectos_master.json';
         a.click();
         
-        alert("Levantamiento guardado. Sube el nuevo archivo a tu repositorio.");
+        alert("Levantamiento guardado. Recuerda subir el archivo proyectos_master.json a tu repositorio.");
     } catch (err) {
         console.error("Error al gestionar el archivo maestro:", err);
         alert("Error al guardar: " + err.message);
