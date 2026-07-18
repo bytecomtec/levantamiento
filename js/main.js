@@ -218,34 +218,47 @@ if (!window.hasLoadedMain) {
         });
 
 document.getElementById('btnGuardar')?.addEventListener('click', async () => {
-    // Usamos tu función existente que ya extrae todo el formulario correctamente
-    const datosFormulario = window.obtenerDatosFormulario();
-
-    const nuevoLevantamiento = {
-        id: Date.now().toString(),
-        nombreCliente: datosFormulario.cliente, // Usa las llaves que ya definiste en tu función
-        nombreProyecto: datosFormulario.proyecto,
-        fecha: new Date().toISOString().split('T')[0],
-        datos: datosFormulario
-    };
-
     try {
-        const response = await fetch('js/proyectos_master.json');
-        let baseDatos = await response.json();
+        // 1. Obtener datos actuales
+        const datosFormulario = window.obtenerDatosFormulario();
+        
+        // 2. Intentar obtener el archivo maestro
+        let baseDatos = [];
+        try {
+            const response = await fetch('js/proyectos_master.json', { cache: "no-store" });
+            if (response.ok) {
+                baseDatos = await response.json();
+            }
+        } catch (e) {
+            console.warn("No se pudo leer el archivo existente, creando uno nuevo.");
+        }
 
+        // 3. Crear el nuevo registro
+        const nuevoLevantamiento = {
+            id: Date.now().toString(),
+            nombreCliente: datosFormulario.cliente,
+            nombreProyecto: datosFormulario.proyecto,
+            fecha: new Date().toISOString().split('T')[0],
+            datos: datosFormulario
+        };
+
+        // 4. Actualizar el array
         baseDatos.push(nuevoLevantamiento);
 
+        // 5. Descargar el archivo actualizado
         const blob = new Blob([JSON.stringify(baseDatos, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        
         const a = document.createElement('a');
         a.href = url;
         a.download = 'proyectos_master.json';
         a.click();
         
-        alert("Levantamiento guardado. Recuerda subir el archivo proyectos_master.json a tu repositorio.");
+        // Limpiar memoria
+        URL.revokeObjectURL(url);
+        
+        alert("Levantamiento guardado exitosamente. Sube el nuevo archivo a tu repositorio.");
     } catch (err) {
-        console.error("Error al gestionar el archivo maestro:", err);
+        console.error("Error crítico al guardar:", err);
         alert("Error al guardar: " + err.message);
     }
 });
