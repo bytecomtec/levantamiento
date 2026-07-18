@@ -217,40 +217,43 @@ if (!window.hasLoadedMain) {
             window.open(`https://wa.me/?text=${msg}`, '_blank');
         });
 
-        // 6. Botón Guardar
- document.getElementById('btnGuardar')?.addEventListener('click', async () => {
-    // 1. Obtener datos actuales del formulario
+document.getElementById('btnGuardar')?.addEventListener('click', async () => {
+    // 1. Obtener datos con seguridad
+    const elCliente = document.getElementById('nombreCliente');
+    const elProyecto = document.getElementById('nombreProyecto');
+    
+    // Verificación básica para evitar el error "null"
+    if (!elCliente || !elProyecto) {
+        alert("Error: No se encuentran los campos de nombre o proyecto en el formulario.");
+        return;
+    }
+
     const nuevoLevantamiento = {
-        const el = document.getElementById('TU_ID_AQUI');
-console.log("¿Elemento encontrado?:", el); // Si sale null, ahí está el problema
-const valor = el.value;
-        id: Date.now().toString(), // Genera un ID único basado en el tiempo
-        nombreCliente: document.getElementById('nombreCliente').value,
-        nombreProyecto: document.getElementById('nombreProyecto').value,
+        id: Date.now().toString(),
+        nombreCliente: elCliente.value,
+        nombreProyecto: elProyecto.value,
         fecha: new Date().toISOString().split('T')[0],
-        datos: { /* recoge aquí el resto de tus campos */ }
+        datos: window.obtenerDatosFormulario() // Usamos tu función que ya tienes creada
     };
 
     try {
-        // 2. Cargar el JSON maestro (puedes tenerlo local en /js/proyectos_master.json)
         const response = await fetch('js/proyectos_master.json');
         let baseDatos = await response.json();
 
-        // 3. Añadir el nuevo registro
         baseDatos.push(nuevoLevantamiento);
 
-        // 4. Crear el archivo actualizado para descarga automática
         const blob = new Blob([JSON.stringify(baseDatos, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         
         const a = document.createElement('a');
         a.href = url;
         a.download = 'proyectos_master.json';
-        a.click(); // Esto fuerza al navegador a guardar el archivo actualizado
+        a.click();
         
-        alert("Levantamiento guardado. Por favor, sube el nuevo archivo a tu repositorio.");
+        alert("Levantamiento guardado. Sube el nuevo archivo a tu repositorio.");
     } catch (err) {
         console.error("Error al gestionar el archivo maestro:", err);
+        alert("Error al guardar: " + err.message);
     }
 });
 
