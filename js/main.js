@@ -221,8 +221,8 @@ document.getElementById('btnGuardar')?.addEventListener('click', async () => {
     try {
         const datosFormulario = window.obtenerDatosFormulario();
         
-        // 1. Obtener base de datos actual desde el repo
-        const response = await fetch('js/proyectos_master.json', { cache: "no-store" });
+        // 1. Intentamos leer el archivo desde /datos/proyectos_master.json
+        const response = await fetch('datos/proyectos_master.json', { cache: "no-store" });
         let baseDatos = response.ok ? await response.json() : [];
 
         // 2. Agregar el nuevo registro
@@ -234,14 +234,14 @@ document.getElementById('btnGuardar')?.addEventListener('click', async () => {
             datos: datosFormulario
         });
 
-        // 3. EN LUGAR DE DESCARGAR, LLAMAMOS A LA FUNCIÓN QUE SUBE A GITHUB
-        // Esta es la función que ya tenías definida arriba en tu código
+        // 3. Guardar directamente en GitHub dentro de la carpeta /datos/
+        // La función espera el nombre del archivo y los datos
         await guardarLevantamientoEnGitHub('proyectos_master.json', baseDatos);
         
-        alert("Levantamiento guardado directamente en GitHub.");
+        alert("Levantamiento guardado exitosamente en la carpeta /datos/ del repositorio.");
     } catch (err) {
         console.error("Error al guardar en GitHub:", err);
-        alert("Error: " + err.message + ". Asegúrate de tener tu token de GitHub configurado.");
+        alert("Error al guardar: " + err.message + ". Verifica tu token y permisos.");
     }
 });
 
