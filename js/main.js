@@ -266,22 +266,29 @@ if (!window.hasLoadedMain) {
 
     //Vía NUBE (La nueva lógica)
 document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
-    // URL directa y pública al contenido del archivo en el repositorio
-    // NOTA: Asegúrate de que el archivo esté en la rama 'main'
-    const url = "https://raw.githubusercontent.com/bytecomtec/levantamiento/main/datos/TU_ARCHIVO.json";
-
     try {
-        console.log("Intentando carga directa...");
-        const response = await fetch(url, { cache: "no-store" });
+        // 1. Cargamos el archivo maestro local (sin bloqueos de red)
+        const response = await fetch('js/proyectos_master.json', { cache: "no-store" });
+        if (!response.ok) throw new Error("No se pudo leer el archivo maestro.");
         
-        if (!response.ok) throw new Error("No se pudo descargar el archivo");
+        const baseDatos = await response.json();
         
-        const data = await response.json();
-        window.llenarFormularioConDatos(data);
-        alert("¡Archivo cargado con éxito!");
+        // 2. Creamos una lista de nombres de proyectos para que elijas
+        const nombres = baseDatos.map(item => item.nombreCliente);
+        const seleccion = prompt("Selecciona un cliente para cargar su levantamiento:\n\n" + nombres.join('\n'));
+        
+        // 3. Buscamos el objeto seleccionado
+        const registro = baseDatos.find(item => item.nombreCliente === seleccion);
+        
+        if (registro) {
+            window.llenarFormularioConDatos(registro.datos); // Tu función existente para rellenar
+            alert("Datos cargados correctamente.");
+        } else if (seleccion !== null) {
+            alert("No se encontró el proyecto seleccionado.");
+        }
     } catch (err) {
-        console.error("Error de carga directa:", err);
-        alert("Error: Verifica que el archivo sea público y la URL sea correcta.");
+        console.error("Error al cargar:", err);
+        alert("Error al cargar desde el archivo maestro: " + err.message);
     }
 });
 
