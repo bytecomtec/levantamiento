@@ -217,52 +217,40 @@ if (!window.hasLoadedMain) {
             window.open(`https://wa.me/?text=${msg}`, '_blank');
         });
 
-async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
-    const GITHUB_TOKEN = await obtenerToken();
-    if (!GITHUB_TOKEN) throw new Error("Token no disponible");
+// Intentar vincular el botón hasta que aparezca en el DOM
+const intervalId = setInterval(() => {
+    const btn = document.getElementById('btnGuardar');
+    if (btn) {
+        clearInterval(intervalId); // Ya lo encontramos, paramos de buscar
+        btn.addEventListener('click', async () => {
+            console.log("Iniciando proceso de guardado..."); // Esto aparecerá en la consola (F12)
+            try {
+                const datosFormulario = window.obtenerDatosFormulario();
+                
+                // 1. Obtener la base de datos actual
+                const response = await fetch('datos/proyectos_master.json', { cache: "no-store" });
+                let baseDatos = response.ok ? await response.json() : [];
 
-    const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos/${nombreArchivo}`;
-    
-    // 1. Intentamos obtener el SHA actual del archivo para poder actualizarlo
-    let sha = null;
-    try {
-        const responseCheck = await fetch(url, {
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                // 2. Agregar nuevo registro
+                baseDatos.push({
+                    id: Date.now().toString(),
+                    nombreCliente: datosFormulario.cliente,
+                    nombreProyecto: datosFormulario.proyecto,
+                    fecha: new Date().toISOString().split('T')[0],
+                    datos: datosFormulario
+                });
+
+                // 3. Subir
+                await guardarLevantamientoEnGitHub('proyectos_master.json', baseDatos);
+                alert("Guardado exitosamente en GitHub.");
+            } catch (err) {
+                console.error("Error capturado:", err);
+                alert("Error al guardar: " + err.message);
+            }
         });
-        if (responseCheck.ok) {
-            const data = await responseCheck.json();
-            sha = data.sha; // Aquí capturamos el SHA
-        }
-    } catch (e) {
-        console.log("El archivo no existe, se creará uno nuevo.");
+        console.log("Botón de guardar vinculado correctamente.");
     }
-
-    // 2. Preparamos el contenido
-    const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(datosJson, null, 2))));
-    
-    const body = {
-        message: `Actualizando: ${nombreArchivo}`,
-        content: contentBase64,
-        branch: "main"
-    };
-
-    // Si encontramos un SHA, se lo enviamos a GitHub
-    if (sha) body.sha = sha;
-
-    // 3. Enviamos la petición de guardado/actualización
-    const response = await fetch(url, {
-        method: 'PUT',
-        headers: { 
-            'Authorization': `token ${GITHUB_TOKEN}`, 
-            'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify(body)
-    });
-
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.message || "Error al subir a GitHub");
-    return result;
-}
+}, 500); // Busca cada medio segundo
 
         // 7. Calculadora HDD
         document.getElementById('btnCalcularHDD')?.addEventListener('click', () => { document.getElementById('calculadoraPanel').style.display = document.getElementById('calculadoraPanel').style.display === 'none' ? 'block' : 'none'; });
