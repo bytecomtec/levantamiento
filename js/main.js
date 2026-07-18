@@ -247,45 +247,35 @@ if (!window.hasLoadedMain) {
         });
 
     //Vía NUBE (La nueva lógica)
-    document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
+document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
     try {
         const GITHUB_TOKEN = await obtenerToken();
+        // Usamos una URL directa al archivo si conoces el nombre, 
+        // o solicitamos primero el directorio.
         const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos`;
         
         const response = await fetch(url, {
-            method: 'GET', // Aseguramos que sea GET
-            mode: 'cors',  // Forzamos el modo CORS
             headers: { 
                 'Authorization': `token ${GITHUB_TOKEN}`,
-                'Accept': 'application/vnd.github.v3+json' // Header específico de la API de GitHub
+                'Accept': 'application/vnd.github.v3+json'
             }
         });
         
-        if (!response.ok) throw new Error("Error de conexión: " + response.status);
+        if (!response.ok) throw new Error("Error de conexión con GitHub");
         
         const archivos = await response.json();
-        const nombres = archivos.map(f => f.name);
-        const seleccion = prompt("Elige un archivo para cargar:\n\n" + nombres.join('\n'));
+        const seleccion = prompt("Elige un archivo:\n" + archivos.map(f => f.name).join('\n'));
         
-        if (!seleccion) return;
-
-        // Repetimos la lógica para traer el contenido del archivo
-        const fileUrl = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos/${seleccion}`;
-        const resFile = await fetch(fileUrl, {
-            method: 'GET',
-            mode: 'cors',
-            headers: { 
-                'Authorization': `token ${GITHUB_TOKEN}`, 
-                'Accept': 'application/vnd.github.v3.raw' 
-            }
-        });
-        
-        const data = await resFile.json();
-        window.llenarFormularioConDatos(data);
-        
+        if (seleccion) {
+            // USAR LA URL RAW PARA EVITAR EL BLOQUEO CORS
+            const rawUrl = `https://raw.githubusercontent.com/bytecomtec/levantamiento/main/datos/${seleccion}`;
+            const resFile = await fetch(rawUrl);
+            const data = await resFile.json();
+            window.llenarFormularioConDatos(data);
+        }
     } catch (err) {
-        console.error("Error detallado:", err);
-        alert("No se pudo cargar desde la nube: " + err.message);
+        console.error("Error:", err);
+        alert("Error al conectar: " + err.message);
     }
 });
 
