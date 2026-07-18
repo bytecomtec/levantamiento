@@ -247,33 +247,44 @@ if (!window.hasLoadedMain) {
         });
 
 // Cambia tu bloque de "Vía NUBE" por este para depurar:
-document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
-    try {
-        const GITHUB_TOKEN = await obtenerToken();
-        const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos`;
+// Asegúrate de que este bloque esté dentro de tu DOMContentLoaded
+const btnNube = document.getElementById('btnCargarNube');
+
+if (btnNube) {
+    btnNube.addEventListener('click', async () => {
+        console.log("Botón Nube presionado correctamente."); // <-- Si esto no sale en la consola, el problema es el HTML o el DOM
         
-        console.log("Intentando conectar a GitHub...");
-        const response = await fetch(url, { 
-            headers: { 
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'Accept': 'application/json' 
-            } 
-        });
-        
-        // Aquí veremos el error específico si la respuesta no es 200 OK
-        if (!response.ok) {
-            const errorData = await response.text();
-            console.error("Respuesta del servidor:", errorData);
-            throw new Error(`Error ${response.status}: No se pudo acceder a la carpeta.`);
+        try {
+            const GITHUB_TOKEN = await obtenerToken();
+            if (!GITHUB_TOKEN) {
+                console.warn("Token no encontrado.");
+                return;
+            }
+            
+            const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos`;
+            console.log("Llamando a:", url);
+            
+            const response = await fetch(url, { 
+                headers: { 'Authorization': `token ${GITHUB_TOKEN}` } 
+            });
+            
+            if (!response.ok) throw new Error("Respuesta del servidor: " + response.status);
+            
+            const archivos = await response.json();
+            const nombres = archivos.map(f => f.name);
+            const seleccion = prompt("Elige un archivo para cargar:\n\n" + nombres.join('\n'));
+            
+            if (seleccion) {
+                // ... tu lógica de carga de archivo ...
+            }
+        } catch (err) {
+            console.error("Error capturado:", err);
+            alert("Error: " + err.message);
         }
-        
-        const archivos = await response.json();
-        // ... resto de tu lógica ...
-    } catch (err) {
-        console.error("Detalle del error:", err);
-        alert("No se pudo cargar desde la nube: " + err.message);
-    }
-});
+    });
+} else {
+    console.error("El elemento con ID 'btnCargarNube' no fue encontrado en el DOM.");
+}
 
         // 8. Carga JSON
         document.getElementById('inputCargaRespaldo')?.addEventListener('change', (e) => {
