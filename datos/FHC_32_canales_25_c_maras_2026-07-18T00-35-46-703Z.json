@@ -1,0 +1,92 @@
+{
+  "secciones": {
+    "dispositivo": {
+      "cantidad": "1",
+      "especificacion": "NVR",
+      "notas": "Hikvision"
+    },
+    "hdd": {
+      "cantidad": "1",
+      "especificacion": "1 TB",
+      "notas": "Calculado: 6 días"
+    },
+    "cam_domo": {
+      "cantidad": "12",
+      "especificacion": "2MP",
+      "notas": "ColorVu/Mic"
+    },
+    "cable": {
+      "cantidad": "1",
+      "especificacion": "Precision",
+      "notas": "305m 100% Cobre"
+    },
+    "transceptores": {
+      "cantidad": "12",
+      "especificacion": "TT-101-F-TURBO",
+      "notas": "Epcom Titanium"
+    },
+    "jacks_dc": {
+      "cantidad": "12",
+      "especificacion": "JR52X",
+      "notas": ""
+    },
+    "mat_miscelaneos": {
+      "cantidad": "",
+      "especificacion": "Materiales convencionales para fijación",
+      "notas": ""
+    },
+    "pwr_fuente": {
+      "cantidad": "1",
+      "especificacion": "DS-2FA1208-C16/K 16A Para 16 Cámaras",
+      "notas": "Epcom, No permite batería"
+    },
+    "pwr_ups": {
+      "cantidad": "1",
+      "especificacion": "EPU600LCD 4 Tomas 1 sin respaldo",
+      "notas": "Epcom"
+    },
+    "Instalacion": {
+      "cantidad": "",
+      "especificacion": "Cable tendido, sin canalizar.",
+      "notas": ""
+    },
+    "Vlans": {
+      "cantidad": "",
+      "especificacion": "Sin configuración específica.",
+      "notas": ""
+    },
+    "Configuracion": {
+      "cantidad": "",
+      "especificacion": "Configuración básica",
+      "notas": ""
+    },
+    "Acceso": {
+      "cantidad": "",
+      "especificacion": "Alta y configuración de plataforma Hik-Connect",
+      "notas": ""
+    },
+    "Altura": {
+      "cantidad": "",
+      "especificacion": "Sin riesgo de trabajo",
+      "notas": ""
+    },
+    "Elemento": {
+      "cantidad": "",
+      "especificacion": "N/A",
+      "notas": ""
+    }
+  },
+  "cliente": "Francisco Hernández",
+  "proyecto": "FHC 32 canales 25 cámaras",
+  "contacto": "Rosa Gómez",
+  "cargo": "Director(a)",
+  "direccion": "Calle Juan Mendoza 12",
+  "fechaVisita": "2026-07-17",
+  "horaVisita": "18:33",
+  "contactoDatos": "6773345",
+  "ingeniero": "Pedro Martínez Alva",
+  "entregables": [
+    "Planos",
+    "Memoria Técnica"
+  ]
+}
