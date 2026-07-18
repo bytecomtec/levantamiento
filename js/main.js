@@ -248,41 +248,22 @@ if (!window.hasLoadedMain) {
 
     //Vía NUBE (La nueva lógica)
 document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
-    try {
-        const GITHUB_TOKEN = await obtenerToken();
-        if (!GITHUB_TOKEN) return;
+    // URL directa y pública al contenido del archivo en el repositorio
+    // NOTA: Asegúrate de que el archivo esté en la rama 'main'
+    const url = "https://raw.githubusercontent.com/bytecomtec/levantamiento/main/datos/TU_ARCHIVO.json";
 
-        // Usamos corsproxy.io para evitar el bloqueo del navegador
-        const proxyUrl = "https://corsproxy.io/?";
-        const targetUrl = "https://api.github.com/repos/bytecomtec/levantamiento/contents/datos";
+    try {
+        console.log("Intentando carga directa...");
+        const response = await fetch(url, { cache: "no-store" });
         
-        const response = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
-            headers: { 
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'Accept': 'application/vnd.github.v3+json'
-            }
-        });
+        if (!response.ok) throw new Error("No se pudo descargar el archivo");
         
-        if (!response.ok) throw new Error("Error de conexión: " + response.status);
-        
-        const archivos = await response.json();
-        const nombres = archivos.map(f => f.name);
-        const seleccion = prompt("Elige un archivo para cargar:\n\n" + nombres.join('\n'));
-        
-        if (seleccion) {
-            const fileUrl = targetUrl + "/" + seleccion;
-            const resFile = await fetch(proxyUrl + encodeURIComponent(fileUrl), {
-                headers: { 
-                    'Authorization': `token ${GITHUB_TOKEN}`, 
-                    'Accept': 'application/vnd.github.v3.raw' 
-                }
-            });
-            const data = await resFile.json();
-            window.llenarFormularioConDatos(data);
-        }
+        const data = await response.json();
+        window.llenarFormularioConDatos(data);
+        alert("¡Archivo cargado con éxito!");
     } catch (err) {
-        console.error("Detalle:", err);
-        alert("No se pudo cargar desde la nube. Asegúrate de tener conexión a internet y un token válido.");
+        console.error("Error de carga directa:", err);
+        alert("Error: Verifica que el archivo sea público y la URL sea correcta.");
     }
 });
 
