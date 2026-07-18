@@ -246,26 +246,34 @@ if (!window.hasLoadedMain) {
             if (document.getElementById('notes_hdd')) document.getElementById('notes_hdd').value = `Calculado: ${dias} días`;
         });
 
-        // 2. Vía NUBE
-        document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
-            try {
-                const GITHUB_TOKEN = await obtenerToken();
-                const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos`;
-                const response = await fetch(url, { headers: { 'Authorization': `token ${GITHUB_TOKEN}` } });
-                if (!response.ok) throw new Error("No pude acceder a la carpeta 'datos'");
-                const archivos = await response.json();
-                const nombres = archivos.map(f => f.name);
-                const seleccion = prompt("Elige un archivo para cargar:\n\n" + nombres.join('\n'));
-                if (!seleccion) return;
-                const fileUrl = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos/${seleccion}`;
-                const resFile = await fetch(fileUrl, { headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3.raw' } });
-                const data = await resFile.json();
-                window.llenarFormularioConDatos(data);
-            } catch (err) {
-                console.error(err);
-                alert("No se pudo cargar desde la nube: " + err.message);
-            }
+// Cambia tu bloque de "Vía NUBE" por este para depurar:
+document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
+    try {
+        const GITHUB_TOKEN = await obtenerToken();
+        const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos`;
+        
+        console.log("Intentando conectar a GitHub...");
+        const response = await fetch(url, { 
+            headers: { 
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Accept': 'application/json' 
+            } 
         });
+        
+        // Aquí veremos el error específico si la respuesta no es 200 OK
+        if (!response.ok) {
+            const errorData = await response.text();
+            console.error("Respuesta del servidor:", errorData);
+            throw new Error(`Error ${response.status}: No se pudo acceder a la carpeta.`);
+        }
+        
+        const archivos = await response.json();
+        // ... resto de tu lógica ...
+    } catch (err) {
+        console.error("Detalle del error:", err);
+        alert("No se pudo cargar desde la nube: " + err.message);
+    }
+});
 
         // 8. Carga JSON
         document.getElementById('inputCargaRespaldo')?.addEventListener('change', (e) => {
