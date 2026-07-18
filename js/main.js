@@ -219,47 +219,29 @@ if (!window.hasLoadedMain) {
 
 document.getElementById('btnGuardar')?.addEventListener('click', async () => {
     try {
-        // 1. Obtener datos actuales
         const datosFormulario = window.obtenerDatosFormulario();
         
-        // 2. Intentar obtener el archivo maestro
-        let baseDatos = [];
-        try {
-            const response = await fetch('js/proyectos_master.json', { cache: "no-store" });
-            if (response.ok) {
-                baseDatos = await response.json();
-            }
-        } catch (e) {
-            console.warn("No se pudo leer el archivo existente, creando uno nuevo.");
-        }
+        // 1. Obtener base de datos actual desde el repo
+        const response = await fetch('js/proyectos_master.json', { cache: "no-store" });
+        let baseDatos = response.ok ? await response.json() : [];
 
-        // 3. Crear el nuevo registro
-        const nuevoLevantamiento = {
+        // 2. Agregar el nuevo registro
+        baseDatos.push({
             id: Date.now().toString(),
             nombreCliente: datosFormulario.cliente,
             nombreProyecto: datosFormulario.proyecto,
             fecha: new Date().toISOString().split('T')[0],
             datos: datosFormulario
-        };
+        });
 
-        // 4. Actualizar el array
-        baseDatos.push(nuevoLevantamiento);
-
-        // 5. Descargar el archivo actualizado
-        const blob = new Blob([JSON.stringify(baseDatos, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'proyectos_master.json';
-        a.click();
+        // 3. EN LUGAR DE DESCARGAR, LLAMAMOS A LA FUNCIÓN QUE SUBE A GITHUB
+        // Esta es la función que ya tenías definida arriba en tu código
+        await guardarLevantamientoEnGitHub('proyectos_master.json', baseDatos);
         
-        // Limpiar memoria
-        URL.revokeObjectURL(url);
-        
-        alert("Levantamiento guardado exitosamente. Sube el nuevo archivo a tu repositorio.");
+        alert("Levantamiento guardado directamente en GitHub.");
     } catch (err) {
-        console.error("Error crítico al guardar:", err);
-        alert("Error al guardar: " + err.message);
+        console.error("Error al guardar en GitHub:", err);
+        alert("Error: " + err.message + ". Asegúrate de tener tu token de GitHub configurado.");
     }
 });
 
