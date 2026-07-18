@@ -211,6 +211,91 @@ if (!window.hasLoadedMain) {
             }
         });
 
+        /**
+ * main.js - Versión Completa Bytecomtec
+ */
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(reg => reg.unregister()));
+}
+
+if (!window.hasLoadedMain) {
+    window.hasLoadedMain = true;
+
+    // --- Funciones Globales ---
+    window.ejecutarImpresionClean = function() {
+        if (!window.validarFormulario()) return alert("Completa los campos obligatorios marcados en rojo.");
+        document.querySelectorAll('.row-item').forEach(fila => {
+            const check = fila.querySelector('input[type="checkbox"]');
+            const cant = fila.querySelector('.qty-input');
+            const sel = fila.querySelector('select');
+            fila.classList.toggle('is-printed', (check?.checked || cant?.value.trim() !== "" || (sel && sel.value !== "Seleccionar...")));
+        });
+        window.print();
+    };
+
+    // --- Lógica de Nube ---
+    async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
+        const token = localStorage.getItem('GITHUB_TOKEN_BYTECOMTEC') || prompt("Ingresa tu GitHub Token:");
+        if (token) localStorage.setItem('GITHUB_TOKEN_BYTECOMTEC', token);
+        if (!token) throw new Error("Token no disponible");
+        
+        const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos/${nombreArchivo.replace(/ /g, '_')}.json`;
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(datosJson, null, 2))));
+
+        const resp = await fetch(url, {
+            method: 'PUT',
+            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: `Guardando: ${nombreArchivo}`, content, branch: "main" })
+        });
+        if (!resp.ok) throw new Error("Error al subir a GitHub");
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // 1. CÁLCULO DE ALMACENAMIENTO (HDD)
+        window.calcularHDD = function() {
+            const camaras = parseInt(document.getElementById('totalCamaras')?.value) || 0;
+            const dias = parseInt(document.getElementById('diasGrabacion')?.value) || 0;
+            const res = document.getElementById('resultadoHDD');
+            if (res) res.innerText = ((camaras * dias * 0.5) / 1000).toFixed(2) + " TB requeridos.";
+        };
+
+        // 2. BOTÓN WHATSAPP
+        document.getElementById('btnWhatsApp')?.addEventListener('click', () => {
+            const data = window.obtenerDatosFormulario();
+            const msg = `Levantamiento Técnico: ${data.proyecto}%0ACliente: ${data.cliente}%0AFecha: ${data.fechaVisita}`;
+            window.open(`https://wa.me/52155XXXXXXXX?text=${msg}`, '_blank');
+        });
+
+        // 3. CARGA JSON LOCAL
+        document.getElementById('inputCargaRespaldo')?.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => window.llenarFormularioConDatos(JSON.parse(e.target.result));
+            reader.readAsText(file);
+        });
+
+        // 4. OTROS BOTONES
+        document.getElementById('btnGuardar')?.addEventListener('click', async () => {
+            try {
+                const nombre = document.getElementById('cliente')?.value || 'Proyecto_Sin_Nombre';
+                await guardarLevantamientoEnGitHub(nombre, window.obtenerDatosFormulario());
+                alert("Guardado en la nube exitosamente.");
+            } catch (e) { alert(e.message); }
+        });
+
+        document.getElementById('btnProcesarCalculo')?.addEventListener('click', window.calcularHDD);
+        document.getElementById('btnImprimir')?.addEventListener('click', window.ejecutarImpresionClean);
+
+        // ... [AQUÍ MANTIENES TU LÓGICA DE AUTO-CHECKBOX, FIBRA Y VALIDACIÓN QUE YA TENÍAS] ...
+        
+        // RECUERDA: Mantener tus funciones window.llenarFormularioConDatos y window.obtenerDatosFormulario 
+        // debajo del DOMContentLoaded como lo teníamos definido anteriormente.
+    });
+}
+
         // 5. Botón Imprimir
         document.getElementById('btnImprimir')?.addEventListener('click', window.ejecutarImpresionClean);
     });
