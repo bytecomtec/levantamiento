@@ -287,7 +287,7 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
 document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
     try {
         // 1. Apuntamos a la ruta correcta: js/proyectos_master.js
-        const response = await fetch('js/proyectos_master.js', { cache: "no-store" });
+        const response = await fetch('/js/proyectos_master.js', { cache: "no-store" });
         if (!response.ok) throw new Error("No se pudo leer el archivo maestro en js/proyectos_master.js");
         
         const baseDatos = await response.json();
