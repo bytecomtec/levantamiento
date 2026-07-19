@@ -285,29 +285,21 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
 
     //Vía NUBE (La nueva lógica)
 document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
+    // Usamos una ruta absoluta relativa a la raíz para asegurar que encuentre el archivo
+    const rutaArchivo = window.location.pathname.includes('/levantamiento/') 
+        ? '/levantamiento/js/proyectos_master.js' 
+        : '/js/proyectos_master.js';
+
     try {
-        // 1. Apuntamos a la ruta correcta: js/proyectos_master.js
-        const response = await fetch('/js/proyectos_master.js', { cache: "no-store" });
-        if (!response.ok) throw new Error("No se pudo leer el archivo maestro en js/proyectos_master.js");
+        const response = await fetch(rutaArchivo, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
         
         const baseDatos = await response.json();
-        
-        // 2. Generamos la lista de nombres
-        const nombres = baseDatos.map(item => item.nombreCliente);
-        const seleccion = prompt("Selecciona un cliente para cargar su levantamiento:\n\n" + nombres.join('\n'));
-        
-        // 3. Buscamos y rellenamos
-        const registro = baseDatos.find(item => item.nombreCliente === seleccion);
-        
-        if (registro) {
-            window.llenarFormularioConDatos(registro.datos);
-            alert("Datos cargados correctamente.");
-        } else if (seleccion !== null) {
-            alert("No se encontró el proyecto seleccionado.");
-        }
+        // ... resto de tu lógica ...
     } catch (err) {
-        console.error("Error al cargar:", err);
-        alert("Error al cargar desde el archivo maestro: " + err.message);
+        console.error("Fallo crítico al cargar:", err);
+        // Si falla, al menos avisamos en pantalla en lugar de dejarla en blanco
+        alert("No se pudo cargar el archivo. Verifica la ruta en la consola.");
     }
 });
 
