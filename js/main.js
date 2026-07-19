@@ -286,21 +286,21 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
     //Vía NUBE (La nueva lógica)
 document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
     try {
-        // 1. Cargamos el archivo maestro local (sin bloqueos de red)
-        const response = await fetch('js/proyectos_master.json', { cache: "no-store" });
-        if (!response.ok) throw new Error("No se pudo leer el archivo maestro.");
+        // 1. Apuntamos a la ruta correcta: js/proyectos_master.js
+        const response = await fetch('js/proyectos_master.js', { cache: "no-store" });
+        if (!response.ok) throw new Error("No se pudo leer el archivo maestro en js/proyectos_master.js");
         
         const baseDatos = await response.json();
         
-        // 2. Creamos una lista de nombres de proyectos para que elijas
+        // 2. Generamos la lista de nombres
         const nombres = baseDatos.map(item => item.nombreCliente);
         const seleccion = prompt("Selecciona un cliente para cargar su levantamiento:\n\n" + nombres.join('\n'));
         
-        // 3. Buscamos el objeto seleccionado
+        // 3. Buscamos y rellenamos
         const registro = baseDatos.find(item => item.nombreCliente === seleccion);
         
         if (registro) {
-            window.llenarFormularioConDatos(registro.datos); // Tu función existente para rellenar
+            window.llenarFormularioConDatos(registro.datos);
             alert("Datos cargados correctamente.");
         } else if (seleccion !== null) {
             alert("No se encontró el proyecto seleccionado.");
