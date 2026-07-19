@@ -323,42 +323,35 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
 
     //Vía NUBE (La nueva lógica)
 document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
-    console.log("Paso 1: Botón presionado. Iniciando carga...");
-    
+    // CAMBIO: Usamos la URL de contenido "raw" (crudo) de tu repositorio
+    // Esta URL NO bloquea CORS porque no es una petición a la API
+    const urlRaw = 'https://raw.githubusercontent.com/bytecomtec/levantamiento/main/js/proyectos_master.js';
+
     try {
-        const token = await obtenerToken();
-        console.log("Paso 2: Token obtenido:", token ? "OK" : "Error");
-        if (!token) throw new Error("Token no disponible");
-
-        const urlApi = 'https://api.github.com/repos/bytecomtec/levantamiento/contents/js/proyectos_master.js';
-        console.log("Paso 3: Intentando conectar a:", urlApi);
-
-        const response = await fetch(urlApi, {
-            headers: { 
-                'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github.v3.raw',
-                'Cache-Control': 'no-store'
-            }
-        });
-
-        console.log("Paso 4: Respuesta recibida, status:", response.status);
-
-        if (!response.ok) throw new Error(`Error en GitHub: ${response.status}`);
+        console.log("Intentando descargar archivo crudo...");
+        const response = await fetch(urlRaw, { cache: "no-store" });
+        
+        if (!response.ok) throw new Error(`Error al descargar: ${response.status}`);
         
         const baseDatos = await response.json();
-        console.log("Paso 5: Datos recibidos:", baseDatos);
+        console.log("Datos recibidos correctamente.");
 
         if (Array.isArray(baseDatos)) {
             const nombres = baseDatos.map(item => item.cliente || "Sin nombre");
             const seleccion = prompt("Selecciona un proyecto:\n\n" + nombres.join('\n'));
+            
             if (seleccion) {
                 const registro = baseDatos.find(item => item.cliente === seleccion);
-                if (registro) window.llenarFormularioConDatos(registro);
+                if (registro) {
+                    window.llenarFormularioConDatos(registro);
+                } else {
+                    alert("Proyecto no encontrado.");
+                }
             }
         }
     } catch (err) {
-        console.error("Fallo detectado:", err);
-        alert("Error: " + err.message);
+        console.error("Fallo:", err);
+        alert("No se pudo cargar. Asegúrate de que el archivo tenga formato JSON válido: " + err.message);
     }
 });
 
