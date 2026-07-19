@@ -41,21 +41,59 @@ if (!window.hasLoadedMain) {
         return token;
     }
 
-    async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
+async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
+    try {
         const GITHUB_TOKEN = await obtenerToken();
         if (!GITHUB_TOKEN) throw new Error("Token no disponible");
-        const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/datos/${nombreArchivo}`;
+
+        const url = `https://api.github.com/repos/bytecomtec/levantamiento/contents/js/${nombreArchivo}`;
+        
+        // 1. Intentar obtener el SHA (necesario para actualizar)
+        const responseCheck = await fetch(url, {
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        });
+        
+        let sha = null;
+        if (responseCheck.ok) {
+            const data = await responseCheck.json();
+            sha = data.sha;
+        }
+
+        // 2. Preparar el contenido
         const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(datosJson, null, 2))));
         
+        const body = {
+            message: `Actualizando ${nombreArchivo}`,
+            content: contentBase64,
+            branch: "main"
+        };
+        if (sha) body.sha = sha;
+
+        // 3. Enviar a GitHub
         const response = await fetch(url, {
             method: 'PUT',
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: `Guardando: ${nombreArchivo}`, content: contentBase64, branch: "main" })
+            headers: { 
+                'Authorization': `token ${GITHUB_TOKEN}`, 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify(body)
         });
+
         const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "Error al subir");
+        
+        if (!response.ok) {
+            // Esto nos dirá el error exacto (ej. 401 Unauthorized, 403 Forbidden, etc.)
+            throw new Error(`GitHub API Error (${response.status}): ${JSON.stringify(result)}`);
+        }
+        
         return result;
+
+    } catch (err) {
+        console.error("Error en guardarLevantamientoEnGitHub:", err);
+        alert("Fallo al grabar: " + err.message); // Esto es lo que necesitamos ver
+        throw err;
     }
+}
     
     document.addEventListener('DOMContentLoaded', () => {
 
