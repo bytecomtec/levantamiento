@@ -323,47 +323,42 @@ async function guardarLevantamientoEnGitHub(nombreArchivo, datosJson) {
 
     //Vía NUBE (La nueva lógica)
 document.getElementById('btnCargarNube')?.addEventListener('click', async () => {
+    console.log("Paso 1: Botón presionado. Iniciando carga...");
+    
     try {
-        // 1. Obtenemos el token necesario para leer desde la API
         const token = await obtenerToken();
-        if (!token) throw new Error("Token no disponible para cargar datos.");
+        console.log("Paso 2: Token obtenido:", token ? "OK" : "Error");
+        if (!token) throw new Error("Token no disponible");
 
-        // 2. Usamos la API de GitHub para acceder al contenido crudo (raw)
-        // Nota: Asegúrate de que la ruta coincida exactamente con tu repositorio: 'datos/proyectos_master.json' o 'js/proyectos_master.js'
         const urlApi = 'https://api.github.com/repos/bytecomtec/levantamiento/contents/js/proyectos_master.js';
+        console.log("Paso 3: Intentando conectar a:", urlApi);
 
         const response = await fetch(urlApi, {
             headers: { 
                 'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github.v3.raw', // Esto descarga el contenido real del archivo
+                'Accept': 'application/vnd.github.v3.raw',
                 'Cache-Control': 'no-store'
             }
         });
 
-        if (!response.ok) throw new Error(`Error al conectar con GitHub: ${response.status}`);
+        console.log("Paso 4: Respuesta recibida, status:", response.status);
+
+        if (!response.ok) throw new Error(`Error en GitHub: ${response.status}`);
         
         const baseDatos = await response.json();
+        console.log("Paso 5: Datos recibidos:", baseDatos);
 
-        // 3. Lógica para procesar los datos una vez obtenidos
         if (Array.isArray(baseDatos)) {
             const nombres = baseDatos.map(item => item.cliente || "Sin nombre");
-            const seleccion = prompt("Selecciona un proyecto para cargar:\n\n" + nombres.join('\n'));
-            
-            const registro = baseDatos.find(item => item.cliente === seleccion);
-            
-            if (registro) {
-                window.llenarFormularioConDatos(registro);
-                alert("Datos cargados correctamente.");
-            } else if (seleccion !== null) {
-                alert("No se encontró el proyecto seleccionado.");
+            const seleccion = prompt("Selecciona un proyecto:\n\n" + nombres.join('\n'));
+            if (seleccion) {
+                const registro = baseDatos.find(item => item.cliente === seleccion);
+                if (registro) window.llenarFormularioConDatos(registro);
             }
-        } else {
-            throw new Error("El formato del archivo no es un arreglo válido.");
         }
-
     } catch (err) {
-        console.error("Fallo crítico al cargar:", err);
-        alert("No se pudo cargar el archivo desde la nube. Revisa la consola para más detalles: " + err.message);
+        console.error("Fallo detectado:", err);
+        alert("Error: " + err.message);
     }
 });
 
